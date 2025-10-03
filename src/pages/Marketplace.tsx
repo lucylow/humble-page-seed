@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { DemoDomainsGrid } from '@/components/DemoDomainsGrid';
 import { TransactionFeedback, txToast } from '@/components/TransactionFeedback';
+import { MarketplaceInteractionGuide } from '@/components/MarketplaceInteractionGuide';
 import { Wallet } from 'lucide-react';
 
 const Marketplace: React.FC = () => {
@@ -117,6 +118,10 @@ const Marketplace: React.FC = () => {
               </Button>
             </CardContent>
           </Card>
+
+          <div className="mb-8">
+            <MarketplaceInteractionGuide />
+          </div>
 
           <DemoDomainsGrid />
         </div>
