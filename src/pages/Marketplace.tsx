@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DemoDomainsGrid } from '@/components/DemoDomainsGrid';
 import { TransactionFeedback, txToast } from '@/components/TransactionFeedback';
 import { MarketplaceInteractionGuide } from '@/components/MarketplaceInteractionGuide';
+import { HybridPaymentModal } from '@/components/HybridPaymentModal';
 import { Wallet } from 'lucide-react';
 
 const Marketplace: React.FC = () => {
@@ -26,6 +27,8 @@ const Marketplace: React.FC = () => {
   const [txStatus, setTxStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [txHash, setTxHash] = useState<string>();
   const [txError, setTxError] = useState<string>();
+  const [selectedDomain, setSelectedDomain] = useState<{ name: string; price: string; currency: string } | null>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   const filteredDomains = marketplaceDomains.filter(domain => {
     const matchesSearch = domain.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -123,7 +126,16 @@ const Marketplace: React.FC = () => {
             <MarketplaceInteractionGuide />
           </div>
 
-          <DemoDomainsGrid />
+          <DemoDomainsGrid onQuickBuy={(domain) => {
+            setSelectedDomain(domain);
+            setPaymentModalOpen(true);
+          }} />
+
+          <HybridPaymentModal 
+            open={paymentModalOpen}
+            onOpenChange={setPaymentModalOpen}
+            domain={selectedDomain}
+          />
         </div>
       </div>
     );

@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+interface DemoDomainsGridProps {
+  onQuickBuy?: (domain: { name: string; price: string; currency: string }) => void;
+}
+
 const DEMO_DOMAINS = [
   {
     name: "web3pro.eth",
@@ -55,7 +59,7 @@ const DEMO_DOMAINS = [
   }
 ];
 
-export function DemoDomainsGrid() {
+export function DemoDomainsGrid({ onQuickBuy }: DemoDomainsGridProps) {
   const navigate = useNavigate();
 
   return (
@@ -113,7 +117,18 @@ export function DemoDomainsGrid() {
               </Button>
               <Button 
                 className="flex-1"
-                onClick={() => navigate('/marketplace')}
+                onClick={() => {
+                  if (onQuickBuy) {
+                    const priceValue = domain.price.replace(' ETH', '');
+                    onQuickBuy({ 
+                      name: domain.name, 
+                      price: priceValue, 
+                      currency: 'ETH' 
+                    });
+                  } else {
+                    navigate('/marketplace');
+                  }
+                }}
               >
                 <Zap className="h-4 w-4 mr-2" />
                 Quick Buy
