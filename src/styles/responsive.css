@@ -1,0 +1,315 @@
+/* Mobile-first responsive design system for DomaLand */
+
+/* Base domain card styles */
+.domain-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.domain-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.domain-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.domain-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.domain-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.domain-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.metric {
+  text-align: center;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.metric-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.domain-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* Touch-friendly buttons */
+.btn-primary, .btn-secondary {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px; /* Minimum touch target size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #4f46e5;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #3730a3;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .domain-card {
+    padding: 12px;
+  }
+  
+  .domain-name {
+    font-size: 16px;
+  }
+  
+  .domain-price {
+    font-size: 18px;
+  }
+  
+  .domain-metrics {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .domain-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn-primary, .btn-secondary {
+    padding: 16px 24px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .domain-card {
+    margin-bottom: 12px;
+  }
+  
+  .metric {
+    padding: 6px;
+  }
+  
+  .metric-value {
+    font-size: 14px;
+  }
+  
+  .metric-label {
+    font-size: 11px;
+  }
+}
+
+/* Accessibility improvements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .domain-card {
+    border: 2px solid #000;
+  }
+  
+  .btn-primary {
+    background: #000;
+    color: #fff;
+    border: 2px solid #000;
+  }
+  
+  .btn-secondary {
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .domain-card,
+  .btn-primary,
+  .btn-secondary {
+    transition: none;
+  }
+  
+  .domain-card:hover {
+    transform: none;
+  }
+  
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.btn-primary:focus,
+.btn-secondary:focus,
+.domain-card:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .domain-card {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .domain-name {
+    color: #f9fafb;
+  }
+  
+  .metric {
+    background: #374151;
+  }
+  
+  .metric-value {
+    color: #f9fafb;
+  }
+  
+  .metric-label {
+    color: #9ca3af;
+  }
+  
+  .btn-secondary {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  
+  .btn-secondary:hover {
+    background: #4b5563;
+  }
+}
+
+/* Container queries for component-level responsiveness */
+@container (max-width: 400px) {
+  .domain-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .domain-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print styles */
+@media print {
+  .domain-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    display: none;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  .domain-card {
+    padding: 8px;
+  }
+  
+  .domain-metrics {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Very large screens */
+@media (min-width: 1920px) {
+  .domain-card {
+    padding: 24px;
+  }
+  
+  .domain-name {
+    font-size: 20px;
+  }
+  
+  .domain-price {
+    font-size: 24px;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 16px 32px;
+    font-size: 18px;
+  }
+}
