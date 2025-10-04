@@ -1,0 +1,9 @@
+{
+  "name": "@compatguard/frameworks",
+  "version": "1.0.0",
+  "main": "dist/index.cjs",
+  "type": "module",
+  "scripts": {},
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts"
+}
