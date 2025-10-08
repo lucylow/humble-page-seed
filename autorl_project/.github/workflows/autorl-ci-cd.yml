@@ -1,0 +1,173 @@
+name: AutoRL CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r autorl_project/requirements.txt
+          pip install flake8 mypy bandit black isort
+          
+      - name: Run Black formatter check
+        run: |
+          black --check autorl_project/src/
+          
+      - name: Run isort import sorting check
+        run: |
+          isort --check-only autorl_project/src/
+          
+      - name: Run flake8 linting
+        run: |
+          flake8 autorl_project/src/ --max-line-length=120 --extend-ignore=E203,W503
+          
+      - name: Run mypy type checking
+        run: |
+          mypy autorl_project/src/ --ignore-missing-imports
+          
+      - name: Run Bandit security scan
+        run: |
+          bandit -r autorl_project/src/ -ll
+          
+      - name: Security vulnerability scan
+        uses: pypa/gh-action-pip-audit@v1.0.8
+        with:
+          inputs: autorl_project/requirements.txt
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r autorl_project/requirements.txt
+          pip install pytest pytest-cov pytest-asyncio pytest-mock
+          
+      - name: Run unit tests
+        run: |
+          cd autorl_project
+          pytest tests/ -v --cov=src/ --cov-report=xml --cov-report=html --cov-fail-under=70
+          
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./autorl_project/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  integration-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      appium:
+        image: appium/appium:latest
+        ports:
+          - 4723:4723
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r autorl_project/requirements.txt
+          pip install pytest pytest-asyncio
+          
+      - name: Wait for Appium to be ready
+        run: |
+          timeout 60 sh -c 'until nc -z localhost 4723; do sleep 1; done'
+          
+      - name: Run integration tests
+        run: |
+          cd autorl_project
+          pytest tests/integration/ -v -m integration
+        env:
+          APPIUM_SERVER: localhost:4723
+
+  docker-build:
+    needs: [code-quality, test]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./autorl_project
+          file: ./autorl_project/Dockerfile
+          push: false
+          tags: autorl:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-staging:
+    needs: [integration-test, docker-build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging environment"
+          # Add your staging deployment commands here
+
+  deploy-production:
+    needs: [integration-test, docker-build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production environment"
+          # Add your production deployment commands here
+      
+      - name: Notify deployment
+        run: |
+          echo "Production deployment completed successfully"
