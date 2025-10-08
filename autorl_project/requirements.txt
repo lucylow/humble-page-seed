@@ -1,0 +1,10 @@
+Appium-Python-Client
+selenium
+psutil
+prometheus_client
+Pillow
+flask
+flask-cors
+
+
+pytesseract

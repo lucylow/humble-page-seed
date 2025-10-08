@@ -1,0 +1,60 @@
+
+version: '3.8'
+
+services:
+  appium-server:
+    image: appium/appium:2.0.0
+    command: ["appium", "--base-path", "/wd/hub"]
+    ports:
+      - "4723:4723"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4723/wd/hub/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autorl-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 api_server.py
+    ports:
+      - "5000:5000"
+    environment:
+      - APPIUM_SERVER_URL=http://appium-server:4723/wd/hub
+    depends_on:
+      appium-server:
+        condition: service_healthy
+    networks:
+      - autorl-network
+
+  ai-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 main.py
+    environment:
+      - APPIUM_SERVER_URL=http://appium-server:4723/wd/hub
+    depends_on:
+      appium-server:
+        condition: service_healthy
+    networks:
+      - autorl-network
+
+  frontend:
+    build:
+      context: ./autorl-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - autorl-network
+
+networks:
+  autorl-network:
+    driver: bridge
+

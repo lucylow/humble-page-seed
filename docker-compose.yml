@@ -1,0 +1,61 @@
+
+version: '3.8'
+
+services:
+  appium-server:
+    image: appium/appium:2.0.0
+    command: ["appium", "--base-path", "/wd/hub"]
+    ports:
+      - "4723:4723"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4723/wd/hub/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autorl-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: autorl_project/Dockerfile
+    command: python api_server.py
+    ports:
+      - "5000:5000"
+      - "9000:9000" # Prometheus metrics port
+    environment:
+      - APPIUM_SERVER_URL=http://appium-server:4723/wd/hub
+      - TESSERACT_CMD=/usr/bin/tesseract # Ensure Tesseract is found inside the container
+      - OPENAI_API_KEY=${OPENAI_API_KEY} # Pass OpenAI API key
+    depends_on:
+      appium-server:
+        condition: service_healthy
+    networks:
+      - autorl-network
+
+  frontend:
+    build:
+      context: ./autorl_project/autorl-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # React development server port
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:5000 # For local development
+    depends_on:
+      - backend
+    networks:
+      - autorl-network
+
+  landing-page:
+    build:
+      context: ./autorl_project/landing-page
+      dockerfile: Dockerfile
+    ports:
+      - "80:80" # Serve landing page on default HTTP port
+    networks:
+      - autorl-network
+
+networks:
+  autorl-network:
+    driver: bridge
+
