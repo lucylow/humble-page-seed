@@ -1,0 +1,265 @@
+// Prisma Schema for BitMind Smart Invoice System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String     @id @default(cuid())
+  walletAddress     String     @unique
+  email             String?    @unique
+  username          String?
+  role              UserRole   @default(USER)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  lastLoginAt       DateTime?
+
+  // Relations
+  createdInvoices   Invoice[]  @relation("InvoiceCreator")
+  clientInvoices    Invoice[]  @relation("ClientInvoices")
+  contractorInvoices Invoice[] @relation("ContractorInvoices")
+  arbitratorInvoices Invoice[] @relation("ArbitratorInvoices")
+  raisedDisputes    Dispute[]  @relation("DisputeRaiser")
+  resolvedDisputes  Dispute[]  @relation("DisputeResolver")
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+
+  @@index([walletAddress])
+  @@index([email])
+}
+
+model Invoice {
+  id                  String          @id @default(cuid())
+  invoiceNumber       String          @unique @default(cuid())
+  description         String
+  projectScope        String?
+  
+  // Parties
+  creatorId           String
+  creator             User            @relation("InvoiceCreator", fields: [creatorId], references: [id])
+  clientAddress       String
+  client              User            @relation("ClientInvoices", fields: [clientAddress], references: [walletAddress])
+  contractorAddress   String
+  contractor          User            @relation("ContractorInvoices", fields: [contractorAddress], references: [walletAddress])
+  arbitratorAddress   String?
+  arbitrator          User?           @relation("ArbitratorInvoices", fields: [arbitratorAddress], references: [walletAddress])
+  
+  // Financial
+  totalAmount         Float
+  paidAmount          Float           @default(0)
+  currency            String          @default("sBTC")
+  
+  // Contract & Storage
+  contractAddress     String?
+  contractName        String?
+  deploymentTxId      String?
+  ipfsHash            String?
+  
+  // Status & Dates
+  status              InvoiceStatus   @default(DRAFT)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  deployedAt          DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  
+  // Relations
+  milestones          Milestone[]
+  disputes            Dispute[]
+  transactions        Transaction[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]
+
+  @@index([clientAddress])
+  @@index([contractorAddress])
+  @@index([arbitratorAddress])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Milestone {
+  id                String            @id @default(cuid())
+  invoiceId         String
+  invoice           Invoice           @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  sequence          Int
+  title             String
+  description       String
+  amount            Float
+  condition         String
+  dueDate           DateTime?
+  
+  status            MilestoneStatus   @default(PENDING)
+  approvedAt        DateTime?
+  releasedAt        DateTime?
+  releaseTxId       String?
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@unique([invoiceId, sequence])
+  @@index([invoiceId])
+  @@index([status])
+}
+
+model Dispute {
+  id                String          @id @default(cuid())
+  invoiceId         String
+  invoice           Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  raisedBy          String
+  raiser            User            @relation("DisputeRaiser", fields: [raisedBy], references: [walletAddress])
+  reason            String
+  evidence          String?
+  
+  status            DisputeStatus   @default(OPEN)
+  resolvedBy        String?
+  resolver          User?           @relation("DisputeResolver", fields: [resolvedBy], references: [walletAddress])
+  resolution        String?
+  resolutionTxId    String?
+  
+  createdAt         DateTime        @default(now())
+  resolvedAt        DateTime?
+  updatedAt         DateTime        @updatedAt
+
+  @@index([invoiceId])
+  @@index([raisedBy])
+  @@index([status])
+}
+
+model Transaction {
+  id                String            @id @default(cuid())
+  invoiceId         String?
+  invoice           Invoice?          @relation(fields: [invoiceId], references: [id])
+  
+  txId              String            @unique
+  txType            TransactionType
+  from              String
+  to                String
+  amount            Float
+  currency          String            @default("sBTC")
+  
+  status            TxStatus          @default(PENDING)
+  blockHeight       Int?
+  confirmations     Int               @default(0)
+  
+  metadata          Json?
+  createdAt         DateTime          @default(now())
+  confirmedAt       DateTime?
+
+  @@index([txId])
+  @@index([invoiceId])
+  @@index([from])
+  @@index([to])
+  @@index([status])
+}
+
+model Notification {
+  id                String              @id @default(cuid())
+  userId            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoiceId         String?
+  invoice           Invoice?            @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  type              NotificationType
+  title             String
+  message           String
+  metadata          Json?
+  
+  read              Boolean             @default(false)
+  readAt            DateTime?
+  createdAt         DateTime            @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id                String      @id @default(cuid())
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id])
+  invoiceId         String?
+  invoice           Invoice?    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  action            String
+  entityType        String
+  entityId          String?
+  changes           Json?
+  ipAddress         String?
+  userAgent         String?
+  
+  createdAt         DateTime    @default(now())
+
+  @@index([userId])
+  @@index([invoiceId])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+  ARBITRATOR
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING_DEPLOYMENT
+  DEPLOYED
+  ACTIVE
+  COMPLETED
+  DISPUTED
+  CANCELLED
+  REFUNDED
+}
+
+enum MilestoneStatus {
+  PENDING
+  APPROVED
+  RELEASED
+  DISPUTED
+  REJECTED
+}
+
+enum DisputeStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CANCELLED
+}
+
+enum TransactionType {
+  DEPLOYMENT
+  LOCK_FUNDS
+  RELEASE_MILESTONE
+  REFUND
+  DISPUTE_RESOLUTION
+  ARBITRATOR_FEE
+}
+
+enum TxStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  INVOICE_CREATED
+  INVOICE_DEPLOYED
+  MILESTONE_APPROVED
+  MILESTONE_RELEASED
+  PAYMENT_RECEIVED
+  DISPUTE_RAISED
+  DISPUTE_RESOLVED
+  CONTRACT_COMPLETED
+  SYSTEM_ALERT
+}
+

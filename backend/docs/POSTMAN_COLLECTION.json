@@ -1,0 +1,318 @@
+{
+  "info": {
+    "name": "BitMind Smart Invoice API",
+    "description": "AI-powered invoice escrow system on Stacks blockchain",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "invoiceId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "walletAddress",
+      "value": "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["info"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Processing",
+      "item": [
+        {
+          "name": "Parse Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Build a website for $5000. First milestone: Design for $2000 due in 2 weeks. Second milestone: Development for $2000 due in 4 weeks. Final milestone: Deployment for $1000 due in 6 weeks.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/parse",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "parse"]
+            }
+          }
+        },
+        {
+          "name": "Get Suggestions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partialData\": {\n    \"description\": \"Build website\",\n    \"amount\": 5000\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/suggest",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "suggest"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoice Management",
+      "item": [
+        {
+          "name": "Create Invoice (AI)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('invoiceId', response.data.invoiceId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Build a decentralized application for $5000. First milestone: Smart contract development for $2000. Second milestone: Frontend for $2000. Final: Testing for $1000.\",\n  \"clientWallet\": \"{{walletAddress}}\",\n  \"useAI\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "create"]
+            }
+          }
+        },
+        {
+          "name": "Create Invoice (Manual)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('invoiceId', response.data.invoiceId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Website development project\",\n  \"projectScope\": \"Full-stack web development with React and Node.js\",\n  \"clientAddress\": \"ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM\",\n  \"contractorAddress\": \"ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG\",\n  \"arbitratorAddress\": \"ST3AM1A56AK2C1XAFJ4115ZSV26EB49BVQ10MGCS0\",\n  \"totalAmount\": 5000,\n  \"currency\": \"sBTC\",\n  \"milestones\": [\n    {\n      \"sequence\": 1,\n      \"title\": \"Design Phase\",\n      \"description\": \"Complete UI/UX design\",\n      \"amount\": 2000,\n      \"condition\": \"Design approved by client\",\n      \"due_date\": \"2024-02-15\"\n    },\n    {\n      \"sequence\": 2,\n      \"title\": \"Development\",\n      \"description\": \"Build frontend and backend\",\n      \"amount\": 2000,\n      \"condition\": \"All features working\",\n      \"due_date\": \"2024-03-15\"\n    },\n    {\n      \"sequence\": 3,\n      \"title\": \"Deployment\",\n      \"description\": \"Deploy to production\",\n      \"amount\": 1000,\n      \"condition\": \"Site live and tested\",\n      \"due_date\": \"2024-04-01\"\n    }\n  ],\n  \"clientWallet\": \"ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM\",\n  \"useAI\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "create"]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/{{invoiceId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "{{invoiceId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get User Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/user/{{walletAddress}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "user", "{{walletAddress}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/stats/{{walletAddress}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "stats", "{{walletAddress}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoice Actions",
+      "item": [
+        {
+          "name": "Lock Funds",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000,\n  \"clientKey\": \"your-private-key\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/{{invoiceId}}/lock",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "{{invoiceId}}", "lock"]
+            }
+          }
+        },
+        {
+          "name": "Release Milestone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"milestoneId\": \"milestone-id\",\n  \"clientKey\": \"your-private-key\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/{{invoiceId}}/release",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "{{invoiceId}}", "release"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dispute Resolution",
+      "item": [
+        {
+          "name": "Raise Dispute",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"raisedBy\": \"ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM\",\n  \"reason\": \"Work not completed as agreed upon in the contract\",\n  \"evidence\": \"Screenshots and documentation showing incomplete deliverables\",\n  \"userKey\": \"your-private-key\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/invoice/{{invoiceId}}/dispute",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "invoice", "{{invoiceId}}", "dispute"]
+            }
+          }
+        },
+        {
+          "name": "Resolve Dispute",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolution\": \"After reviewing all evidence, the arbitrator rules in favor of the contractor\",\n  \"favorClient\": false,\n  \"arbitratorKey\": \"arbitrator-private-key\",\n  \"resolvedBy\": \"ST3AM1A56AK2C1XAFJ4115ZSV26EB49BVQ10MGCS0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/dispute/{{invoiceId}}/resolve",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "dispute", "{{invoiceId}}", "resolve"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

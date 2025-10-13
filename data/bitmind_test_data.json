@@ -1,0 +1,14 @@
+{
+  "test_cases": [
+    {
+      "name": "Invoice Creation Success",
+      "input": {"client": "TestDAO", "amount": 100, "currency": "STX"},
+      "expected_output": {"status": "pending"}
+    },
+    {
+      "name": "Milestone Update Failure",
+      "input": {"invoiceId": "INV-999", "milestoneId": 1, "status": "completed"},
+      "expected_output": {"success": false}
+    }
+  ]
+}

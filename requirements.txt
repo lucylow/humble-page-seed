@@ -1,8 +1,0 @@
-
-
-pytesseract
-Flask-Cors
-python-docx
-markdown2
-jinja2
-python-pptx

@@ -1,0 +1,16 @@
+{
+  "ui_invoices": [
+    {
+      "id": "UI-INV-001",
+      "title": "Website Redesign",
+      "status": "In Progress",
+      "progress": 60
+    },
+    {
+      "id": "UI-INV-002",
+      "title": "Smart Contract Audit",
+      "status": "Completed",
+      "progress": 100
+    }
+  ]
+}
