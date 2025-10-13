@@ -14,7 +14,263 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          operation: string | null
+          record_id: string | null
+          table_name: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          operation?: string | null
+          record_id?: string | null
+          table_name?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          operation?: string | null
+          record_id?: string | null
+          table_name?: string | null
+        }
+        Relationships: []
+      }
+      deals: {
+        Row: {
+          amount: number | null
+          buyer_address: string | null
+          chain_tx_id: string | null
+          created_at: string | null
+          creator: string | null
+          currency: string | null
+          id: string
+          invoice_id: string | null
+          seller_address: string | null
+          state: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          buyer_address?: string | null
+          chain_tx_id?: string | null
+          created_at?: string | null
+          creator?: string | null
+          currency?: string | null
+          id?: string
+          invoice_id?: string | null
+          seller_address?: string | null
+          state?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          buyer_address?: string | null
+          chain_tx_id?: string | null
+          created_at?: string | null
+          creator?: string | null
+          currency?: string | null
+          id?: string
+          invoice_id?: string | null
+          seller_address?: string | null
+          state?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_line_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          invoice_id: string | null
+          line_total: number | null
+          qty: number | null
+          unit_price: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          invoice_id?: string | null
+          line_total?: number | null
+          qty?: number | null
+          unit_price?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          invoice_id?: string | null
+          line_total?: number | null
+          qty?: number | null
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          buyer_name: string | null
+          created_at: string | null
+          currency: string | null
+          date: string | null
+          discount: number | null
+          id: string
+          invoice_number: string | null
+          owner: string | null
+          parsed: Json | null
+          parser_confidence: number | null
+          status: string | null
+          storage_path: string | null
+          tax: number | null
+          total_amount: number | null
+          updated_at: string | null
+          vendor_name: string | null
+        }
+        Insert: {
+          buyer_name?: string | null
+          created_at?: string | null
+          currency?: string | null
+          date?: string | null
+          discount?: number | null
+          id?: string
+          invoice_number?: string | null
+          owner?: string | null
+          parsed?: Json | null
+          parser_confidence?: number | null
+          status?: string | null
+          storage_path?: string | null
+          tax?: number | null
+          total_amount?: number | null
+          updated_at?: string | null
+          vendor_name?: string | null
+        }
+        Update: {
+          buyer_name?: string | null
+          created_at?: string | null
+          currency?: string | null
+          date?: string | null
+          discount?: number | null
+          id?: string
+          invoice_number?: string | null
+          owner?: string | null
+          parsed?: Json | null
+          parser_confidence?: number | null
+          status?: string | null
+          storage_path?: string | null
+          tax?: number | null
+          total_amount?: number | null
+          updated_at?: string | null
+          vendor_name?: string | null
+        }
+        Relationships: []
+      }
+      parser_feedback: {
+        Row: {
+          corrected_json: Json | null
+          created_at: string | null
+          id: string
+          invoice_id: string | null
+          note: string | null
+          original_json: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          corrected_json?: Json | null
+          created_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          note?: string | null
+          original_json?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          corrected_json?: Json | null
+          created_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          note?: string | null
+          original_json?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parser_feedback_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          created_at: string | null
+          deals_id: string | null
+          id: string
+          meta: Json | null
+          provider: string | null
+          status: string | null
+          tx_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deals_id?: string | null
+          id?: string
+          meta?: Json | null
+          provider?: string | null
+          status?: string | null
+          tx_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deals_id?: string | null
+          id?: string
+          meta?: Json | null
+          provider?: string | null
+          status?: string | null
+          tx_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_deals_id_fkey"
+            columns: ["deals_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
